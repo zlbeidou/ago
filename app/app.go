@@ -2,10 +2,12 @@ package app
 
 import (
 	"context"
-	"github.com/zlbeidou/ago/utils"
 	"log"
 	"os"
+	"os/exec"
+	"os/signal"
 	"sync"
+	"syscall"
 )
 
 type Service interface {
@@ -55,12 +57,35 @@ func Init() {
 	}
 }
 
+func reload() {
+	cmd := exec.Command(os.Args[0], os.Args[1:]...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Env = os.Environ()
+	cmd.Start()
+}
+
 func Run() {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	go func() {
-		utils.WaitForOsExitSignal()
-		cancel()
+	go func() { // catch exit signal
+		s := make(chan os.Signal, 1)
+		signal.Notify(s)
+
+		for {
+			sig := <-s
+			if sig == reloadSig() { // need to reload
+				signal.Stop(s)
+				reload()
+				cancel()
+			} else {
+				switch sig {
+				case syscall.SIGINT, syscall.SIGKILL, syscall.SIGTERM:
+					signal.Stop(s)
+					cancel()
+				}
+			}
+		}
 	}()
 
 	var wg sync.WaitGroup
