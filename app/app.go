@@ -107,10 +107,10 @@ func Run() {
 	stopAllRear()
 	for _, rear := range rears {
 		wg.Add(1)
-		go func() {
+		go func(rear func()) {
 			rear()
 			wg.Done()
-		}()
+		}(rear)
 	}
 	wg.Wait()
 	rearWg.Wait()
