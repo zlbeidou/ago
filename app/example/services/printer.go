@@ -3,22 +3,18 @@ package services
 import (
 	"context"
 	"fmt"
-	"github.com/zlbeidou/ago/app"
 	"github.com/zlbeidou/ago/app/example/logger"
 	"time"
 )
 
-func init() {
-	app.RegisterService(&printer{})
-}
+// Printer
+type Printer struct{}
 
-type printer struct{}
-
-func (p *printer) Init() error {
+func (p *Printer) Init() error {
 	return nil
 }
 
-func (p *printer) Run(ctx context.Context) error {
+func (p *Printer) Run(ctx context.Context) error {
 	ticker := time.NewTicker(time.Second)
 	fmt.Println("printer working")
 	for {

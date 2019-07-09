@@ -18,6 +18,7 @@ func (f *logger) Log() {
 	// log to file buffer
 }
 
+// LoggerInstance get instance of logger
 func LoggerInstance() *logger {
 	onceLoggerInstance.Do(func() {
 		loggerInstance = &logger{}
